@@ -1,0 +1,27 @@
+{
+  "name": "meetup",
+  "version": "1.0.0",
+  "description": "A graphql server for managing events.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muhaimenul/graphql-meetup.git"
+  },
+  "author": "Muhaimenul Islam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/muhaimenul/graphql-meetup/issues"
+  },
+  "homepage": "https://github.com/muhaimenul/graphql-meetup#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
