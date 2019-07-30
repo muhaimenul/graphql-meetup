@@ -7,8 +7,10 @@ const mongoose = require('mongoose')
 
 const app = express()
 
-const { username, password, host, dbname, dbengine } = require('./utils/config');
+// models
+const Event = require('./models/event')
 
+const { username, password, host, dbname, dbengine } = require('./utils/config');
 // env variable can be define from nodemon.json or using dot-env package
 // console.log(process.env.KING_USER)
 
@@ -18,23 +20,24 @@ mongoose.connect(mongoUri, { useNewUrlParser: true })
   .then(() =>  console.log('MLab connection succesful'))
   .catch((err) => console.error(err))
 
+
 app.use(morgan('dev'))
 app.use(express.json())
-const events = [];
+
 app.use('/graphql', graphqlHttp({
     schema: buildSchema(`
         type Event {
             _id: ID!
             title: String!
             description: String!
-            price: Float!
+            price: Float
             date: String!
         }
 
         input EventInput {
             title: String!
             description: String!
-            price: Float!
+            price: Float
             date: String!
         }
 
@@ -52,19 +55,41 @@ app.use('/graphql', graphqlHttp({
         }
     `),
     rootValue: {
-        events: () => {        
-            return events;
+        events: () => {
+            return Event.find()
+            .then(events => {
+                return events.map(event => {
+                    return { ...event._doc }
+                    // sometimes _id is not recognized. So, _id:event._doc._id.toString() or _id:event.id
+                })
+            })
+            .catch(err => { throw err });        
         },
         createEvent: (args) => {
-            const event = {
-                _id: Math.random().toString(),
+            const event = new Event({
                 title: args.eventInput.title,
                 description: args.eventInput.description,
                 price: +args.eventInput.price,
-                date: args.eventInput.date
-            };
-            events.push(event);
-            return event;
+                date: new Date(args.eventInput.date)                
+            })
+            return event.save()
+            .then(res => {
+                console.log(res)
+                return {...res._doc}
+            })
+            .catch(err => {
+                console.log(err)
+                throw err;
+            })
+            // {
+            //     _id: Math.random().toString(),
+            //     title: args.eventInput.title,
+            //     description: args.eventInput.description,
+            //     price: +args.eventInput.price,
+            //     date: args.eventInput.date
+            // };
+            // events.push(event);
+            // return event;
         }
     },
     graphiql: true
