@@ -27,50 +27,54 @@ app.use(morgan('dev'))
 app.use(express.json())
 
 app.use('/graphql', graphqlHttp({
-    schema: buildSchema(`
-        type Event {
-            _id: ID!
-            title: String!
-            description: String!
-            price: Float!
-            date: String!
-        }
-
-        type User {
-            _id: ID!
-            email: String!
-            password: String
-        }
-
-        input EventInput {
-            title: String!
-            description: String!
-            price: Float
-            date: String!
-        }
-
-        input UserInput {
-            email: String!
-            password: String!
-        }
-
-        type RootQuery {
-            events: [Event!]!
-        }
-
-        type RootMutation {
-            createEvent(eventInput: EventInput): Event
-            createUser(userInput: UserInput): User
-        }
-
-        schema {
-            query: RootQuery
-            mutation: RootMutation
-        }
+    schema: 
+    buildSchema(`
+    type Event {
+        _id: ID!
+        title: String!
+        description: String!
+        price: Float!
+        date: String!
+        creator: User!
+    }
+    
+    type User {
+        _id: ID!
+        email: String!
+        password: String
+        createdEvents: [Event!]
+    }
+    
+    input EventInput {
+        title: String!
+        description: String!
+        price: Float
+        date: String!
+    }
+    
+    input UserInput {
+        email: String!
+        password: String!
+    }
+    
+    type RootQuery {
+        events: [Event!]!
+    }
+    
+    type RootMutation {
+        createEvent(eventInput: EventInput): Event
+        createUser(userInput: UserInput): User
+    }
+    
+    schema {
+        query: RootQuery
+        mutation: RootMutation
+    }
     `),
     rootValue: {
         events: () => {
-            return Event.find()
+            //populate('creator') is with('relation') of mongoose
+            return Event.find().populate('creator')
             .then(events => {
                 return events.map(event => {
                     return { ...event._doc }
@@ -97,8 +101,13 @@ app.use('/graphql', graphqlHttp({
             })
         },
         createUser: (args) => {
-            User.findOne({email: args.userInput.email}).then().catch()
-            return bcrypt.hash(args.userInput.password, 12).then(
+            User.findOne({email: args.userInput.email})
+            .then(user => {
+                if (user) {
+                    throw new Error('User Exist already.')
+                }
+                return bcrypt.hash(args.userInput.password, 12)
+            }).then(
                 hashedPassword => {
                     const user = new User({
                         email: args.userInput.email,
@@ -119,7 +128,8 @@ app.use('/graphql', graphqlHttp({
                     throw err;
                 }
             )
-            
+
+                        
         }
     },
     graphiql: true
