@@ -4,11 +4,13 @@ const morgan = require('morgan')
 const graphqlHttp = require('express-graphql')
 const { buildSchema } = require('graphql')
 const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
 
 const app = express()
 
 // models
 const Event = require('./models/event')
+const User = require('./models/user')
 
 const { username, password, host, dbname, dbengine } = require('./utils/config');
 // env variable can be define from nodemon.json or using dot-env package
@@ -30,8 +32,14 @@ app.use('/graphql', graphqlHttp({
             _id: ID!
             title: String!
             description: String!
-            price: Float
+            price: Float!
             date: String!
+        }
+
+        type User {
+            _id: ID!
+            email: String!
+            password: String
         }
 
         input EventInput {
@@ -41,12 +49,18 @@ app.use('/graphql', graphqlHttp({
             date: String!
         }
 
+        input UserInput {
+            email: String!
+            password: String!
+        }
+
         type RootQuery {
             events: [Event!]!
         }
 
         type RootMutation {
             createEvent(eventInput: EventInput): Event
+            createUser(userInput: UserInput): User
         }
 
         schema {
@@ -81,15 +95,31 @@ app.use('/graphql', graphqlHttp({
                 console.log(err)
                 throw err;
             })
-            // {
-            //     _id: Math.random().toString(),
-            //     title: args.eventInput.title,
-            //     description: args.eventInput.description,
-            //     price: +args.eventInput.price,
-            //     date: args.eventInput.date
-            // };
-            // events.push(event);
-            // return event;
+        },
+        createUser: (args) => {
+            User.findOne({email: args.userInput.email}).then().catch()
+            return bcrypt.hash(args.userInput.password, 12).then(
+                hashedPassword => {
+                    const user = new User({
+                        email: args.userInput.email,
+                        password: hashedPassword                
+                    })
+                    return user.save()
+                        .then(res => {
+                            console.log(res)
+                            return {...res._doc, password: null}
+                        })
+                        .catch(err => {
+                            console.log(err)
+                            throw err;
+                        })        
+                }
+            ).catch(
+                err => {
+                    throw err;
+                }
+            )
+            
         }
     },
     graphiql: true
