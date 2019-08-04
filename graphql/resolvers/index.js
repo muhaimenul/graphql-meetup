@@ -21,7 +21,7 @@ const events = async eventIds => {
     } catch (err) {
       throw err;
     }
-  };
+};
   
 const user = async userId => {
   try {
@@ -31,6 +31,20 @@ const user = async userId => {
       _id: user.id,
       createdEvents: events.bind(this, user._doc.createdEvents)
     };
+  } catch (err) {
+    throw err;
+  }
+};
+
+const singleEvent = async eventId => {
+  try {
+    const event = await Event.findById(eventId);
+    return {
+      ...event._doc,
+      _id: event.id,
+      _id: event.id,
+      date: new Date(event._doc.date).toISOString(),
+      creator: user.bind(this, event.creator)    };
   } catch (err) {
     throw err;
   }
@@ -115,7 +129,8 @@ const user = async userId => {
             _id: booking.id,
             createdAt: new Date(booking._doc.createdAt).toISOString(),
             updatedAt: new Date(booking._doc.updatedAt).toISOString(),
-            user: user.bind(this, booking._doc.user)
+            user: user.bind(this, booking._doc.user),
+            event: singleEvent.bind(this, booking._doc.event)
           };
         });
       } catch (err) {
@@ -133,7 +148,8 @@ const user = async userId => {
       return { ...result._doc, _id: result.id, 
         createdAt: new Date(booking._doc.createdAt).toISOString(),
         updatedAt: new Date(booking._doc.updatedAt).toISOString(),
-        user: user.bind(this, booking._doc.user)
+        user: user.bind(this, booking._doc.user),
+        event: singleEvent.bind(this, booking._doc.event)
       }
     },
 
