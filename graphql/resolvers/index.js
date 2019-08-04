@@ -154,6 +154,16 @@ const singleEvent = async eventId => {
     },
 
     cancelBooking: async args => {
+      try {
+        const booking = await Booking.findOne({ _id: args.bookingId }).populate('event');
+        const event = { ...booking.event._doc, _id: booking.event.id,
+          date: new Date(booking.event._doc.date).toISOString(),
+          creator: user.bind(this, booking.event._doc.creator)
+        }
+        await Booking.deleteOne({ _id: args.bookingId });
+        return event;
+      } catch (err) {
 
+      }
     }
   };
