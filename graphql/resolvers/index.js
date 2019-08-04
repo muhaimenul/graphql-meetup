@@ -50,6 +50,7 @@ const events = async eventIds => {
         throw err;
       }
     },
+    
     createEvent: async args => {
       const event = new Event({
         title: args.eventInput.title,
@@ -81,6 +82,7 @@ const events = async eventIds => {
         throw err;
       }
     },
+    
     createUser: async args => {
       try {
         const existingUser = await User.findOne({ email: args.userInput.email });
@@ -100,5 +102,13 @@ const events = async eventIds => {
       } catch (err) {
         throw err;
       }
+    },
+
+    bookEvent: async args => {
+
+    },
+
+    cancelBooking: async args => {
+      
     }
   };
