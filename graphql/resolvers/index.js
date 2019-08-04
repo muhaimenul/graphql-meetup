@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs')
 // models
 const Event = require('../../models/event')
 const User = require('../../models/user')
+const Booking = require('../../models/booking')
+
 
 // binding relation
 const events = async eventIds => {
@@ -21,18 +23,18 @@ const events = async eventIds => {
     }
   };
   
-  const user = async userId => {
-    try {
-      const user = await User.findById(userId);
-      return {
-        ...user._doc,
-        _id: user.id,
-        createdEvents: events.bind(this, user._doc.createdEvents)
-      };
-    } catch (err) {
-      throw err;
-    }
-  };
+const user = async userId => {
+  try {
+    const user = await User.findById(userId);
+    return {
+      ...user._doc,
+      _id: user.id,
+      createdEvents: events.bind(this, user._doc.createdEvents)
+    };
+  } catch (err) {
+    throw err;
+  }
+};
 
   module.exports = {
     events: async () => {
@@ -104,11 +106,38 @@ const events = async eventIds => {
       }
     },
 
-    bookEvent: async args => {
+    bookings: async () => {
+      try {
+        const bookings = await Booking.find()
+        return bookings.map(booking => {
+          return {
+            ...booking._doc,
+            _id: booking.id,
+            createdAt: new Date(booking._doc.createdAt).toISOString(),
+            updatedAt: new Date(booking._doc.updatedAt).toISOString(),
+            user: user.bind(this, booking._doc.user)
+          };
+        });
+      } catch (err) {
+        throw err;
+      }
+    },
 
+    bookEvent: async args => {
+      const event = await Event.findOne({ _id: args.eventId });
+      const booking = new Booking({
+        user: 'asdasdasdasdasd',
+        event: event
+      })
+      const result = await booking.save()
+      return { ...result._doc, _id: result.id, 
+        createdAt: new Date(booking._doc.createdAt).toISOString(),
+        updatedAt: new Date(booking._doc.updatedAt).toISOString(),
+        user: user.bind(this, booking._doc.user)
+      }
     },
 
     cancelBooking: async args => {
-      
+
     }
   };
