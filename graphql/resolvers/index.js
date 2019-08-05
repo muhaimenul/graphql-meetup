@@ -148,7 +148,7 @@ const singleEvent = async eventId => {
         await Booking.deleteOne({ _id: args.bookingId });
         return event;
       } catch (err) {
-
+        throw err;
       }
     }
   };
