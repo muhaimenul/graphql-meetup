@@ -17,6 +17,17 @@ const transformEvent = event => {
   }
 }
 
+const transformBooking = booking => {
+  return {
+    ...booking._doc,
+    _id: booking.id,
+    createdAt: dateToString(booking._doc.createdAt),
+    updatedAt: dateToString(booking._doc.updatedAt),
+    user: user.bind(this, booking._doc.user),
+    event: singleEvent.bind(this, booking._doc.event)
+  }
+}
+
 // binding relation
 const events = async eventIds => {
     try {
@@ -115,14 +126,7 @@ const singleEvent = async eventId => {
       try {
         const bookings = await Booking.find()
         return bookings.map(booking => {
-          return {
-            ...booking._doc,
-            _id: booking.id,
-            createdAt: dateToString(booking._doc.createdAt),
-            updatedAt: dateToString(booking._doc.updatedAt),
-            user: user.bind(this, booking._doc.user),
-            event: singleEvent.bind(this, booking._doc.event)
-          };
+          return transformBooking(booking);
         });
       } catch (err) {
         throw err;
@@ -136,12 +140,7 @@ const singleEvent = async eventId => {
         event: event
       })
       const result = await booking.save()
-      return { ...result._doc, _id: result.id, 
-        createdAt: dateToString(booking._doc.createdAt),
-        updatedAt: dateToString(booking._doc.updatedAt),
-        user: user.bind(this, booking._doc.user),
-        event: singleEvent.bind(this, booking._doc.event)
-      }
+      return transformBooking(result);
     },
 
     cancelBooking: async args => {
