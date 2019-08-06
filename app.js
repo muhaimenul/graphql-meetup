@@ -7,8 +7,12 @@ const mongoose = require('mongoose')
 const graphQlSchema = require('./graphql/schema/index')
 const graphQlResolvers = require('./graphql/resolvers/index')
 
+// jwt middleware
+const isAuth = require('./middleware/is-auth');
+
 const app = express()
 
+app.use(isAuth)
 
 const { username, password, host, dbname, dbengine } = require('./utils/config');
 // env variable can be define from nodemon.json or using dot-env package

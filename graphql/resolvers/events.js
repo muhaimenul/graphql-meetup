@@ -14,7 +14,13 @@ module.exports = {
       }
     },
     
-    createEvent: async args => {
+    createEvent: async (args, req) => {
+
+      //TODO: jwt middlware need to be replaced with passport
+      if (!req.isAuth) {
+        throw new Error('Unauthenticated!');
+      }
+
       const event = new Event({
         title: args.eventInput.title,
         description: args.eventInput.description,
