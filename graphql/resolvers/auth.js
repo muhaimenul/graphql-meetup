@@ -33,6 +33,16 @@ module.exports = {
       if (!isEqual) {
           throw new Error('Password is incorrect!');
       }
+
+      // TODO: will be replaced with passport
+      const token = jwt.sign(
+        { userId: user.id, email: user.email },
+        'somesupersecretkey',
+        {
+          expiresIn: '1h'
+        }
+      );
+      return { userId: user.id, token: token, tokenExpiration: 1 };
       
   }
 };
