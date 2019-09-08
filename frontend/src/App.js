@@ -10,10 +10,12 @@ export default class App extends Component {
   render() {
     return (
       <Router>
-        <MainNavigation />
-        <main>
-          <Routes />
-        </main>
+        <React.Fragment>
+          <MainNavigation />
+          <main>
+            <Routes />
+          </main>
+        </React.Fragment>
       </Router>
     )
   }

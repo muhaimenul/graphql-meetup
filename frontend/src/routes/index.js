@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Route, Redirect, Switch } from 'react-router-dom'
 
 import AuthPage from '../pages/Auth'
+import Events from '../pages/Events'
+import Bookings from '../pages/Bookings'
 
 export default class Routes extends Component {
     render() {
@@ -10,11 +12,9 @@ export default class Routes extends Component {
             <Switch>
                 <Redirect from="/" to="/auth" exact/>
 
-                
-                <Route path="/" component={null} />
                 <Route path="/auth" component={AuthPage} />
-                <Route path="/events" component={null} />
-                <Route path="/bookings" component={null} />
+                <Route path="/events" component={Events} />
+                <Route path="/bookings" component={Bookings} />
             </Switch>
 
         )
